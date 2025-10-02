@@ -1,258 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Locator Extractor Tool</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Locator Extractor Pro</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Reset & base */
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      font-family: 'Poppins', sans-serif;
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
-    }
-
-    h1 {
-      font-weight: 600;
-      font-size: 2.8rem;
-      margin-bottom: 10px;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      user-select: none;
-    }
-
-    p.subtitle {
-      font-weight: 400;
-      font-size: 1.1rem;
-      margin-bottom: 30px;
-      color: #dcdde1cc;
-      user-select: none;
-    }
-
-    textarea {
-      width: 100%;
-      max-width: 720px;
-      height: 180px;
-      border-radius: 12px;
-      border: none;
-      padding: 18px 24px;
-      font-size: 1rem;
-      font-family: monospace;
-      resize: vertical;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      transition: box-shadow 0.3s ease;
-      color: #2c3e50;
-    }
-    textarea:focus {
-      outline: none;
-      box-shadow: 0 0 12px #ffb142;
-      background: #fff;
-    }
-
-    button.extract-btn {
-      margin-top: 20px;
-      padding: 14px 40px;
-      font-size: 1.2rem;
-      font-weight: 600;
-      border-radius: 30px;
-      border: none;
-      cursor: pointer;
-      background: #ff6b6b;
-      box-shadow: 0 6px 15px rgba(255,107,107,0.6);
-      color: white;
-      transition: background 0.3s ease;
-      user-select: none;
-    }
-    button.extract-btn:hover {
-      background: #ff4757;
-      box-shadow: 0 8px 20px rgba(255,71,87,0.8);
-    }
-
-    #result {
-      margin-top: 40px;
-      max-width: 720px;
-      width: 100%;
-      background: rgba(255,255,255,0.95);
-      border-radius: 16px;
-      color: #2c3e50;
-      padding: 25px 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      font-family: monospace;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .locator-block {
-      border-bottom: 1px solid #ccc;
-      padding: 16px 0;
-    }
-    .locator-block:last-child {
-      border: none;
-    }
-    .locator-title {
-      font-weight: 700;
-      font-size: 1.15rem;
-      margin-bottom: 10px;
-      color: #2f3640;
-    }
-    .locator-item {
-      margin: 6px 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #f1f2f6;
-      padding: 10px 14px;
-      border-radius: 8px;
-      user-select: all;
-      font-size: 0.9rem;
-      color: #2f3640;
-      word-break: break-word;
-    }
-    .copy-btn {
-      background: #3742fa;
-      border: none;
-      color: white;
-      font-weight: 600;
-      border-radius: 8px;
-      padding: 6px 12px;
-      cursor: pointer;
-      margin-left: 12px;
-      flex-shrink: 0;
-      transition: background-color 0.25s ease;
-    }
-    .copy-btn:hover {
-      background: #273cbe;
-    }
-
-    /* Scrollbar styling */
-    #result::-webkit-scrollbar {
-      width: 8px;
-    }
-    #result::-webkit-scrollbar-thumb {
-      background-color: #ff6b6b;
-      border-radius: 20px;
-    }
-    #result::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      textarea {
-        height: 140px;
-      }
-      button.extract-btn {
-        width: 100%;
-      }
-    }
+    .preview-frame * { box-sizing: border-box; }
+    .preview-highlight { outline: 3px solid rgba(99,102,241,0.9); outline-offset: 2px; background: rgba(99,102,241,0.04); }
+    .toast { transition: transform .15s ease, opacity .15s ease; }
+    .truncate-250 { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
   </style>
 </head>
-<body>
+<body class="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-800">
 
-  <h1>Locator Extractor Tool</h1>
-  <p class="subtitle">Paste your HTML below and extract various locators (id, name, XPath, CSS, text)</p>
+<div class="max-w-7xl mx-auto px-6 py-10">
+  <div class="flex items-center justify-between gap-4 mb-6">
+    <div class="flex items-center gap-3">
+      <img src="https://cdn-icons-png.flaticon.com/512/3097/3097980.png" alt="Logo" class="h-12 w-12">
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-indigo-600">Locator Extractor <span class="text-indigo-400">Pro</span></h1>
+        <p class="mt-1 text-sm text-gray-500">Extract locators with nested text support, instant copy & export.</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button id="copyAll" class="px-4 py-2 rounded-lg bg-emerald-500 text-white hover:brightness-95">Copy All</button>
+      <button id="downloadCsv" class="px-4 py-2 rounded-lg bg-gray-800 text-white hover:brightness-95">Download CSV</button>
+    </div>
+  </div>
 
-  <textarea id="html-input" placeholder="Paste your HTML here..."></textarea>
+  <!-- input + preview -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 bg-white p-6 shadow rounded-2xl">
+      <label class="text-sm font-medium text-gray-600">Paste HTML</label>
+      <textarea id="htmlInput" rows="10" class="mt-2 w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Paste your HTML here..."></textarea>
 
-  <button class="extract-btn" onclick="extractLocators()">Extract Locators</button>
+      <div class="flex items-center gap-3 mt-4">
+        <button id="extractBtn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow">Extract Locators</button>
+        <input id="searchBox" class="ml-auto px-3 py-2 border rounded-lg w-60" placeholder="Search (label, id, xpath, css)...">
+      </div>
 
-  <div id="result"></div>
+      <div class="mt-6">
+        <label class="text-sm text-gray-500">HTML Preview (hover row / element to highlight)</label>
+        <div id="preview" class="preview-frame mt-3 p-4 border border-dashed rounded-xl h-72 overflow-auto bg-slate-50"></div>
+      </div>
+    </div>
 
-  <script>
-    function copyToClipboard(text, btn) {
-      navigator.clipboard.writeText(text).then(() => {
-        btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
-      }).catch(() => {
-        alert('Failed to copy! Please copy manually.');
-      });
-    }
+    <!-- table card -->
+    <div class="bg-white p-6 shadow rounded-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-lg">Extracted Locators</h2>
+        <div class="text-sm text-gray-500">Click cell to copy • Click row to copy JSON</div>
+      </div>
 
-    function createLocatorElement(key, value) {
-      const container = document.createElement('div');
-      container.className = 'locator-item';
+      <div id="tableWrap" class="max-h-[520px] overflow-auto">
+        <table id="locatorsTable" class="min-w-full text-sm">
+          <thead class="sticky top-0 bg-white">
+            <tr class="text-left">
+              <th class="py-3 px-2 text-xs text-gray-500">Label</th>
+              <th class="py-3 px-2 text-xs text-gray-500">Tag</th>
+              <th class="py-3 px-2 text-xs text-gray-500">ID</th>
+              <th class="py-3 px-2 text-xs text-gray-500">Name</th>
+              <th class="py-3 px-2 text-xs text-gray-500">Class</th>
+              <th class="py-3 px-2 text-xs text-gray-500">CSS</th>
+              <th class="py-3 px-2 text-xs text-gray-500">XPath</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="align-top"></tbody>
+        </table>
+      </div>
 
+      <div class="mt-4 text-sm text-gray-500">
+        Only interactive tags or elements with id/name/class will appear.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="fixed bottom-6 right-6 flex flex-col gap-2 z-50"></div>
+
+<script>
+let latestLocators = [];
+let previewElementMap = new Map();
+
+function showToast(msg, type='success') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = 'toast px-4 py-2 rounded-lg shadow-lg text-white';
+  el.style.opacity = '0.98';
+  el.style.transform = 'translateY(6px)';
+  el.innerText = msg;
+  if (type === 'success') el.style.background = 'linear-gradient(90deg,#10b981,#059669)';
+  else el.style.background = '#ef4444';
+  container.appendChild(el);
+  setTimeout(()=> { el.style.transform='translateY(0)'; }, 10);
+  setTimeout(()=> { el.remove(); }, 2400);
+}
+
+function downloadFile(filename, content, mime='application/json') {
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('extractBtn').addEventListener('click', async () => {
+  const html = document.getElementById('htmlInput').value.trim();
+  if (!html) { showToast('Paste HTML first', 'error'); return; }
+  try {
+    const res = await fetch('/extract-locators', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({html})
+    });
+    const data = await res.json();
+    if (data.error) { showToast(data.error, 'error'); return; }
+    latestLocators = data;
+    renderTable(latestLocators);
+    renderPreview(html, latestLocators);
+    showToast(`Extracted ${latestLocators.length} locators`);
+  } catch (e) {
+    console.error(e);
+    showToast('Extraction failed', 'error');
+  }
+});
+
+document.getElementById('searchBox').addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase();
+  const filtered = latestLocators.filter(l => {
+    const combined = `${l.label||''} ${l.tag_name||''} ${l.id||''} ${l.name||''} ${l.class_name||''} ${l.css_selector||''} ${l.xpath||''}`.toLowerCase();
+    return combined.includes(q);
+  });
+  renderTable(filtered);
+});
+
+document.getElementById('copyAll').addEventListener('click', () => {
+  if (!latestLocators.length) { showToast('No locators to copy', 'error'); return; }
+  navigator.clipboard.writeText(JSON.stringify(latestLocators, null, 2)).then(()=> showToast('All locators copied'));
+});
+
+document.getElementById('downloadJson').addEventListener('click', () => {
+  if (!latestLocators.length) { showToast('No locators to download', 'error'); return; }
+  downloadFile('locators.json', JSON.stringify(latestLocators, null, 2), 'application/json');
+});
+
+document.getElementById('downloadCsv').addEventListener('click', () => {
+  if (!latestLocators.length) { showToast('No locators to download', 'error'); return; }
+  const keys = ['label','tag_name','id','name','class_name','css_selector','xpath'];
+  const rows = [keys.join(',')];
+  latestLocators.forEach(loc => {
+    const row = keys.map(k => `"${(loc[k]||'').toString().replace(/"/g,'""')}"`).join(',');
+    rows.push(row);
+  });
+  downloadFile('locators.csv', rows.join('\n'), 'text/csv');
+});
+
+/* ---------- Render Table ---------- */
+function renderTable(list) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  list.forEach((loc, idx) => {
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50 cursor-pointer';
+    tr.dataset.index = idx;
+
+    tr.addEventListener('click', (e) => {
+      if (e.target.dataset && e.target.dataset.skipRowCopy === 'true') return;
+      navigator.clipboard.writeText(JSON.stringify(loc, null, 2)).then(()=> showToast('Copied element JSON'));
+    });
+
+    function makeCell(text, title) {
+      const td = document.createElement('td');
+      td.className = 'py-3 px-2 align-top';
+      if (!text) { td.innerHTML = '<span class="text-xs text-gray-400 italic">-</span>'; return td; }
       const span = document.createElement('span');
-      span.textContent = `${key}: ${value}`;
-
-      const btn = document.createElement('button');
-      btn.className = 'copy-btn';
-      btn.textContent = 'Copy';
-      btn.onclick = () => copyToClipboard(value, btn);
-
-      container.appendChild(span);
-      container.appendChild(btn);
-
-      return container;
-    }
-
-    function extractLocators() {
-      const htmlInput = document.getElementById('html-input').value.trim();
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = '';
-
-      if (!htmlInput) {
-        resultDiv.textContent = '⚠️ Please paste some HTML first.';
-        return;
-      }
-
-      fetch('/extract-locators', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ html: htmlInput })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to extract locators');
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.error) {
-          resultDiv.textContent = '⚠️ ' + data.error;
-          return;
-        }
-        if (!data.length) {
-          resultDiv.textContent = 'No locators found.';
-          return;
-        }
-
-        data.forEach((locator, index) => {
-          const block = document.createElement('div');
-          block.className = 'locator-block';
-
-          const title = document.createElement('div');
-          title.className = 'locator-title';
-          title.textContent = `Element ${index + 1}`;
-          block.appendChild(title);
-
-          for (const [key, value] of Object.entries(locator)) {
-            if (!value) continue;
-            block.appendChild(createLocatorElement(key, value));
-          }
-
-          resultDiv.appendChild(block);
-        });
-      })
-      .catch(error => {
-        resultDiv.textContent = '⚠️ Error: ' + error.message;
+      span.className = 'truncate-250 inline-block';
+      span.textContent = text;
+      if (title) span.title = title;
+      span.addEventListener('click', ev => {
+        ev.stopPropagation();
+        navigator.clipboard.writeText(text).then(()=> showToast(`Copied: ${text.length>60? text.slice(0,60)+'...': text}`));
       });
+      span.dataset.skipRowCopy = 'true';
+      td.appendChild(span);
+      return td;
     }
-  </script>
 
+    tr.appendChild(makeCell(loc.label||'Unnamed', loc.label||''));
+    tr.appendChild(makeCell(loc.tag_name||'', loc.tag_name||''));
+    tr.appendChild(makeCell(loc.id||'', loc.id||''));
+    tr.appendChild(makeCell(loc.name||'', loc.name||''));
+    tr.appendChild(makeCell(loc.class_name||'', loc.class_name||''));
+    tr.appendChild(makeCell(loc.css_selector||'', loc.css_selector||''));
+    tr.appendChild(makeCell(loc.xpath||'', loc.xpath||''));
+
+    tr.addEventListener('mouseenter', () => {
+      const mapEl = previewElementMap.get(idx);
+      if (mapEl) mapEl.classList.add('preview-highlight');
+    });
+    tr.addEventListener('mouseleave', () => {
+      const mapEl = previewElementMap.get(idx);
+      if (mapEl) mapEl.classList.remove('preview-highlight');
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* ---------- Render Preview ---------- */
+function renderPreview(html, locators) {
+  const preview = document.getElementById('preview');
+  preview.innerHTML = '';
+  previewElementMap.clear();
+
+  const container = document.createElement('div');
+  container.innerHTML = html;
+  container.className = 'preview-root space-y-2';
+
+  locators.forEach((loc, i) => {
+    let el = null;
+    try { if (loc.id) el = container.querySelector(`#${CSS.escape(loc.id)}`); } catch{}
+    if (!el && loc.name) el = container.querySelector(`[name="${loc.name}"]`);
+    if (!el && loc.class_name) el = container.querySelector(`.${loc.class_name.split(' ').map(c=>CSS.escape(c)).join('.')}`);
+    if (!el && loc.css_selector) { try { el = container.querySelector(loc.css_selector); } catch{} }
+    if (!el && loc.xpath) {
+      try {
+        const doc = container.ownerDocument || document;
+        const res = doc.evaluate(loc.xpath, container, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+        if (res && res.singleNodeValue) el = res.singleNodeValue;
+      } catch{}
+    }
+    if (!el && loc.tag_name) el = container.querySelector(loc.tag_name);
+
+    if (el) {
+      el.dataset.locatorIndex = i;
+      el.addEventListener('mouseenter', () => {
+        const row = document.querySelector(`#tableBody tr[data-index="${i}"]`);
+        if (row) row.classList.add('bg-indigo-50');
+        el.classList.add('preview-highlight');
+      });
+      el.addEventListener('mouseleave', () => {
+        const row = document.querySelector(`#tableBody tr[data-index="${i}"]`);
+        if (row) row.classList.remove('bg-indigo-50');
+        el.classList.remove('preview-highlight');
+      });
+      el.addEventListener('click', ev => {
+        ev.stopPropagation();
+        navigator.clipboard.writeText(JSON.stringify(loc, null, 2)).then(()=> showToast('Copied element JSON from preview'));
+      });
+      previewElementMap.set(i, el);
+    }
+  });
+
+  preview.appendChild(container);
+}
+
+if (!CSS.escape) { CSS.escape = function(v){return String(v).replace(/([^\x20-\x7E]|["'\\#;:<>~\[\]\(\)])/g,'\\$&'); }; }
+</script>
 </body>
 </html>

@@ -18,26 +18,29 @@ def extract_locators():
 
 def get_relative_xpath(element):
     """
-    Generate relative XPath using tag and attributes (id, name, class)
-    e.g. //div[@id='company'], //input[@name='username']
-    Falls back to tag only if no attributes.
+    Generate relative XPath using id, name, placeholder, aria-label, or visible text.
+    Ignores class for better reliability.
     """
     if element is None or element.name == '[document]':
         return ''
 
     tag = element.name
 
-    # Priority attributes for XPath
     if element.get('id'):
         return f"//{tag}[@id='{element.get('id')}']"
     if element.get('name'):
         return f"//{tag}[@name='{element.get('name')}']"
-    if element.get('class'):
-        # use first class only for xpath
-        class_name = element.get('class')[0]
-        return f"//{tag}[contains(@class, '{class_name}')]"
+    if element.get('placeholder'):
+        return f"//{tag}[@placeholder='{element.get('placeholder')}']"
+    if element.get('aria-label'):
+        return f"//{tag}[@aria-label='{element.get('aria-label')}']"
 
-    # fallback: just tag name
+    # fallback: use visible text if available
+    text = element.get_text(strip=True)
+    if text:
+        return f"//{tag}[normalize-space()='{text}']"
+
+    # final fallback: just tag name
     return f"//{tag}"
 
 def get_css_selector(element):
@@ -59,53 +62,63 @@ def get_css_selector(element):
         selector += '.' + '.'.join(classes)
     return selector
 
+def get_element_label(element):
+    """
+    Generate a human-readable label for an element.
+    Uses id, name, placeholder, aria-label, value, or visible text (including nested tags).
+    """
+    if element.get("id"):
+        return element.get("id")
+    if element.get("name"):
+        return element.get("name")
+    if element.get("placeholder"):
+        return element.get("placeholder")
+    if element.get("aria-label"):
+        return element.get("aria-label")
+    if element.get("value"):
+        return element.get("value")
+
+    text = element.get_text(strip=True)
+    if text:
+        return text
+
+    if element.name == "input" and element.get("type"):
+        return f"{element.get('type')}-input"
+    if element.name == "select":
+        return "select"
+    if element.name == "textarea":
+        return "textarea"
+
+    return element.name
+
 def extract_locators_from_html(html_content):
     soup = BeautifulSoup(html_content, 'html.parser')
     locators_list = []
 
-    # List of interactive tags to keep
-    interactive_tags = ['input', 'button', 'select', 'textarea', 'a', 'label']
+    interactive_tags = ['input', 'button', 'select', 'textarea', 'a', 'label', 'i', 'span']
 
     for element in soup.find_all(True):
         tag = element.name
 
-        # Filter: only interactive tags OR elements with tabindex attribute
+        # Skip non-interactive elements without id/name/class/tabindex
         if tag not in interactive_tags and not element.has_attr('tabindex'):
             continue
-
-        # For <a> tags, ensure it has href attribute to be interactive
         if tag == 'a' and not element.get('href'):
             continue
 
         locator = {}
-
-        # id
-        if element.get('id'):
-            locator['id'] = element.get('id')
-
-        # name
-        if element.get('name'):
-            locator['name'] = element.get('name')
-
-        # class name (first class only)
-        classes = element.get('class')
-        if classes:
-            locator['class_name'] = classes[0]
-
-        # css selector
-        locator['css_selector'] = get_css_selector(element)
-
-        # xpath (relative with attributes)
-        locator['xpath'] = get_relative_xpath(element)
-
-        # tag name
+        locator['label'] = get_element_label(element)
         locator['tag_name'] = tag
 
-        # link text & partial link text - only for <a> tags with text
-        if tag == 'a' and element.string and element.string.strip():
-            text = element.string.strip()
-            locator['link_text'] = text
-            locator['partial_link_text'] = text[:max(1, len(text)//2)]  # half text as partial
+        if element.get('id'):
+            locator['id'] = element.get('id')
+        if element.get('name'):
+            locator['name'] = element.get('name')
+        if element.get('class'):
+            locator['class_name'] = element.get('class')[0]  # first class only
+
+        locator['css_selector'] = get_css_selector(element)
+        locator['xpath'] = get_relative_xpath(element)
 
         locators_list.append(locator)
 
