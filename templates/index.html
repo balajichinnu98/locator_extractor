@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Locator Extractor Tool</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-weight: 600;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      user-select: none;
+    }
+
+    p.subtitle {
+      font-weight: 400;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      color: #dcdde1cc;
+      user-select: none;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 720px;
+      height: 180px;
+      border-radius: 12px;
+      border: none;
+      padding: 18px 24px;
+      font-size: 1rem;
+      font-family: monospace;
+      resize: vertical;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: box-shadow 0.3s ease;
+      color: #2c3e50;
+    }
+    textarea:focus {
+      outline: none;
+      box-shadow: 0 0 12px #ffb142;
+      background: #fff;
+    }
+
+    button.extract-btn {
+      margin-top: 20px;
+      padding: 14px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      background: #ff6b6b;
+      box-shadow: 0 6px 15px rgba(255,107,107,0.6);
+      color: white;
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+    button.extract-btn:hover {
+      background: #ff4757;
+      box-shadow: 0 8px 20px rgba(255,71,87,0.8);
+    }
+
+    #result {
+      margin-top: 40px;
+      max-width: 720px;
+      width: 100%;
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      color: #2c3e50;
+      padding: 25px 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      font-family: monospace;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .locator-block {
+      border-bottom: 1px solid #ccc;
+      padding: 16px 0;
+    }
+    .locator-block:last-child {
+      border: none;
+    }
+    .locator-title {
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+      color: #2f3640;
+    }
+    .locator-item {
+      margin: 6px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f1f2f6;
+      padding: 10px 14px;
+      border-radius: 8px;
+      user-select: all;
+      font-size: 0.9rem;
+      color: #2f3640;
+      word-break: break-word;
+    }
+    .copy-btn {
+      background: #3742fa;
+      border: none;
+      color: white;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      margin-left: 12px;
+      flex-shrink: 0;
+      transition: background-color 0.25s ease;
+    }
+    .copy-btn:hover {
+      background: #273cbe;
+    }
+
+    /* Scrollbar styling */
+    #result::-webkit-scrollbar {
+      width: 8px;
+    }
+    #result::-webkit-scrollbar-thumb {
+      background-color: #ff6b6b;
+      border-radius: 20px;
+    }
+    #result::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      textarea {
+        height: 140px;
+      }
+      button.extract-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Locator Extractor Tool</h1>
+  <p class="subtitle">Paste your HTML below and extract various locators (id, name, XPath, CSS, text)</p>
+
+  <textarea id="html-input" placeholder="Paste your HTML here..."></textarea>
+
+  <button class="extract-btn" onclick="extractLocators()">Extract Locators</button>
+
+  <div id="result"></div>
+
+  <script>
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+      }).catch(() => {
+        alert('Failed to copy! Please copy manually.');
+      });
+    }
+
+    function createLocatorElement(key, value) {
+      const container = document.createElement('div');
+      container.className = 'locator-item';
+
+      const span = document.createElement('span');
+      span.textContent = `${key}: ${value}`;
+
+      const btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = 'Copy';
+      btn.onclick = () => copyToClipboard(value, btn);
+
+      container.appendChild(span);
+      container.appendChild(btn);
+
+      return container;
+    }
+
+    function extractLocators() {
+      const htmlInput = document.getElementById('html-input').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+
+      if (!htmlInput) {
+        resultDiv.textContent = '⚠️ Please paste some HTML first.';
+        return;
+      }
+
+      fetch('/extract-locators', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ html: htmlInput })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to extract locators');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.error) {
+          resultDiv.textContent = '⚠️ ' + data.error;
+          return;
+        }
+        if (!data.length) {
+          resultDiv.textContent = 'No locators found.';
+          return;
+        }
+
+        data.forEach((locator, index) => {
+          const block = document.createElement('div');
+          block.className = 'locator-block';
+
+          const title = document.createElement('div');
+          title.className = 'locator-title';
+          title.textContent = `Element ${index + 1}`;
+          block.appendChild(title);
+
+          for (const [key, value] of Object.entries(locator)) {
+            if (!value) continue;
+            block.appendChild(createLocatorElement(key, value));
+          }
+
+          resultDiv.appendChild(block);
+        });
+      })
+      .catch(error => {
+        resultDiv.textContent = '⚠️ Error: ' + error.message;
+      });
+    }
+  </script>
+
+</body>
+</html>
