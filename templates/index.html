@@ -4,98 +4,160 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Locator Extractor Pro</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Modern Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    body { font-family: 'Manrope', 'Inter', sans-serif; }
     .preview-frame * { box-sizing: border-box; }
-    .preview-highlight { outline: 3px solid rgba(99,102,241,0.9); outline-offset: 2px; background: rgba(99,102,241,0.04); }
-    .toast { transition: transform .15s ease, opacity .15s ease; }
+    .preview-highlight {
+      outline: 3px solid #a21cafcc;
+      outline-offset: 2px;
+      background: rgba(124,58,237,.08);
+      transition: outline .18s, background .18s;
+    }
+    .toast { transition: transform .17s, opacity .17s; }
     .truncate-250 { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+    .glass-card {
+      background: rgba(30,27,53,.80);
+      box-shadow: 0 12px 32px 0 #a21caf40;
+      backdrop-filter: blur(12px) saturate(132%);
+      border-radius: 1.25rem;
+      border: 1.5px solid rgba(139,92,246,0.13);
+    }
+    .animated-glow {
+      animation: glowPulse 2.6s infinite alternate;
+    }
+    @keyframes glowPulse {
+      0% { text-shadow: 0 4px 36px #a78bfa77, 0 2px 2px #19d1b1; }
+      100% { text-shadow: 0 8px 70px #6366f199, 0 0 0 transparent; }
+    }
+    .animated-border {
+      border: 2px solid;
+      border-image: linear-gradient(90deg,#7c3aed,#10b981,#6366f1,#a21caf) 1;
+      animation: borderAnim 7s linear infinite;
+    }
+    @keyframes borderAnim {
+      0% { border-image-source: linear-gradient(90deg,#7c3aed,#10b981,#6366f1,#a21caf);}
+      100% { border-image-source: linear-gradient(-90deg,#a21caf,#6366f1,#10b981,#7c3aed);}
+    }
+    ::selection { background: #a78bfa99; color: #fff; }
+    ::-webkit-scrollbar { width: 7px; background: #23203f; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(160deg,#6366f1 60%,#a78bfa 100%); border-radius: 8px; }
+    .bg-particles {
+      position: fixed;
+      pointer-events: none;
+      inset: 0;
+      z-index: 0;
+      opacity: .14;
+      background:
+        radial-gradient(circle at 23% 64%, #8b5cf6 0 13%, transparent 45%),
+        radial-gradient(circle at 76% 30%, #10b981 0 10%, transparent 38%);
+      animation: particlesAnimation 19s linear infinite alternate;
+    }
+    @keyframes particlesAnimation {
+      0% { background-position: 23% 64%, 76% 30%; }
+      100% { background-position: 33% 84%, 66% 10%; }
+    }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-800">
-
-<div class="max-w-7xl mx-auto px-6 py-10">
-  <div class="flex items-center justify-between gap-4 mb-6">
-    <div class="flex items-center gap-3">
-      <img src="https://cdn-icons-png.flaticon.com/512/3097/3097980.png" alt="Logo" class="h-12 w-12">
-      <div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-indigo-600">Locator Extractor <span class="text-indigo-400">Pro</span></h1>
-        <p class="mt-1 text-sm text-gray-500">Extract locators with nested text support, instant copy & export.</p>
+<body class="min-h-screen bg-gradient-to-b from-[#131223] to-[#17133f] text-gray-100 relative">
+  <div class="bg-particles"></div>
+  <div class="max-w-7xl mx-auto px-6 py-10 relative">
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-4 mb-9">
+      <div class="flex items-center gap-3">
+        <img src="https://cdn-icons-png.flaticon.com/512/3097/3097980.png" class="h-14 w-14 drop-shadow-lg saturate-150">
+        <div>
+          <h1 class="text-4xl sm:text-5xl font-extrabold text-indigo-300 animated-glow tracking-tight select-none">
+            Locator Extractor <span class="text-purple-400">Pro</span>
+          </h1>
+          <p class="mt-2 text-base text-gray-400 italic">
+            Extract locators with nested text support, instant copy & export.
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button id="copyAll"
+          class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-xl hover:brightness-125 hover:scale-105 transition duration-150">
+          &#x2398; Copy All
+        </button>
+        <button id="downloadCsv"
+          class="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-800 via-violet-900 to-indigo-900 text-white font-semibold shadow-xl hover:shadow-indigo-500 hover:scale-105 transition duration-150">
+          &#128190; Download CSV
+        </button>
       </div>
     </div>
-    <div class="flex gap-2">
-      <button id="copyAll" class="px-4 py-2 rounded-lg bg-emerald-500 text-white hover:brightness-95">Copy All</button>
-      <button id="downloadCsv" class="px-4 py-2 rounded-lg bg-gray-800 text-white hover:brightness-95">Download CSV</button>
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-9">
+      <!-- Input + Preview -->
+      <div class="lg:col-span-2 glass-card p-8 shadow-xl transition">
+        <label class="text-sm font-semibold text-indigo-300">Paste HTML</label>
+        <textarea id="htmlInput" rows="10"
+          class="mt-2 w-full p-4 rounded-xl border border-indigo-800 bg-gray-900 text-indigo-100 focus:outline-none focus:ring-4 focus:ring-purple-500 placeholder:text-purple-300 shadow"
+          placeholder="Paste your HTML here..."></textarea>
+        <div class="flex items-center gap-3 mt-5">
+          <button id="extractBtn"
+            class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-700 text-white font-bold shadow-lg transition hover:scale-105 hover:shadow-purple-500">
+            Extract Locators
+          </button>
+          <input id="searchBox"
+            class="ml-auto px-3 py-2 border border-gray-800 rounded-lg bg-gray-900 text-gray-100 placeholder:text-gray-400 w-60 focus:ring-2 focus:ring-indigo-500 shadow"
+            placeholder="Search (label, id, xpath, css)...">
+        </div>
+        <div class="mt-8">
+          <label class="text-sm text-gray-400">HTML Preview (hover row / element to highlight)</label>
+          <div id="preview"
+            class="preview-frame animated-border mt-4 p-4 rounded-xl h-72 overflow-auto bg-gray-900"></div>
+        </div>
+      </div>
+      <!-- Table -->
+      <div class="glass-card p-8 shadow-xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-semibold text-xl text-indigo-200 tracking-tight">Extracted Locators</h2>
+          <div class="text-sm text-gray-400">Click cell to copy • Click row to copy JSON</div>
+        </div>
+        <div id="tableWrap" class="max-h-[520px] overflow-auto">
+          <table id="locatorsTable" class="min-w-full text-sm">
+            <thead class="sticky top-0 bg-gray-950 z-10">
+              <tr class="text-left text-purple-300">
+                <th class="py-3 px-2 text-xs font-bold">Label</th>
+                <th class="py-3 px-2 text-xs font-bold">Tag</th>
+                <th class="py-3 px-2 text-xs font-bold">ID</th>
+                <th class="py-3 px-2 text-xs font-bold">Name</th>
+                <th class="py-3 px-2 text-xs font-bold">Class</th>
+                <th class="py-3 px-2 text-xs font-bold">CSS</th>
+                <th class="py-3 px-2 text-xs font-bold">XPath</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody" class="align-top text-gray-100"></tbody>
+          </table>
+        </div>
+        <div class="mt-6 text-sm text-gray-400">
+          Only interactive tags or elements with id/name/class will appear.
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- input + preview -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 bg-white p-6 shadow rounded-2xl">
-      <label class="text-sm font-medium text-gray-600">Paste HTML</label>
-      <textarea id="htmlInput" rows="10" class="mt-2 w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Paste your HTML here..."></textarea>
-
-      <div class="flex items-center gap-3 mt-4">
-        <button id="extractBtn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow">Extract Locators</button>
-        <input id="searchBox" class="ml-auto px-3 py-2 border rounded-lg w-60" placeholder="Search (label, id, xpath, css)...">
-      </div>
-
-      <div class="mt-6">
-        <label class="text-sm text-gray-500">HTML Preview (hover row / element to highlight)</label>
-        <div id="preview" class="preview-frame mt-3 p-4 border border-dashed rounded-xl h-72 overflow-auto bg-slate-50"></div>
-      </div>
-    </div>
-
-    <!-- table card -->
-    <div class="bg-white p-6 shadow rounded-2xl">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="font-semibold text-lg">Extracted Locators</h2>
-        <div class="text-sm text-gray-500">Click cell to copy • Click row to copy JSON</div>
-      </div>
-
-      <div id="tableWrap" class="max-h-[520px] overflow-auto">
-        <table id="locatorsTable" class="min-w-full text-sm">
-          <thead class="sticky top-0 bg-white">
-            <tr class="text-left">
-              <th class="py-3 px-2 text-xs text-gray-500">Label</th>
-              <th class="py-3 px-2 text-xs text-gray-500">Tag</th>
-              <th class="py-3 px-2 text-xs text-gray-500">ID</th>
-              <th class="py-3 px-2 text-xs text-gray-500">Name</th>
-              <th class="py-3 px-2 text-xs text-gray-500">Class</th>
-              <th class="py-3 px-2 text-xs text-gray-500">CSS</th>
-              <th class="py-3 px-2 text-xs text-gray-500">XPath</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody" class="align-top"></tbody>
-        </table>
-      </div>
-
-      <div class="mt-4 text-sm text-gray-500">
-        Only interactive tags or elements with id/name/class will appear.
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="toastContainer" class="fixed bottom-6 right-6 flex flex-col gap-2 z-50"></div>
-
-<script>
+  <div id="toastContainer" class="fixed bottom-8 right-8 flex flex-col gap-3 z-50"></div>
+  <script>
 let latestLocators = [];
 let previewElementMap = new Map();
 
 function showToast(msg, type='success') {
   const container = document.getElementById('toastContainer');
   const el = document.createElement('div');
-  el.className = 'toast px-4 py-2 rounded-lg shadow-lg text-white';
-  el.style.opacity = '0.98';
-  el.style.transform = 'translateY(6px)';
+  el.className = 'toast px-4 py-2 rounded-lg shadow-lg text-white font-semibold text-base';
+  el.style.opacity = '0.97';
+  el.style.transform = 'translateY(7px)';
   el.innerText = msg;
-  if (type === 'success') el.style.background = 'linear-gradient(90deg,#10b981,#059669)';
-  else el.style.background = '#ef4444';
+  el.style.backdropFilter = 'blur(6px)';
+  if(type === 'success') el.style.background = 'linear-gradient(90deg,#10b981,#6366f1)';
+  else el.style.background = 'linear-gradient(90deg,#ef4444,#a78bfa)';
   container.appendChild(el);
   setTimeout(()=> { el.style.transform='translateY(0)'; }, 10);
-  setTimeout(()=> { el.remove(); }, 2400);
+  setTimeout(()=> { el.remove(); }, 2450);
 }
 
 function downloadFile(filename, content, mime='application/json') {
@@ -145,11 +207,6 @@ document.getElementById('copyAll').addEventListener('click', () => {
   navigator.clipboard.writeText(JSON.stringify(latestLocators, null, 2)).then(()=> showToast('All locators copied'));
 });
 
-document.getElementById('downloadJson').addEventListener('click', () => {
-  if (!latestLocators.length) { showToast('No locators to download', 'error'); return; }
-  downloadFile('locators.json', JSON.stringify(latestLocators, null, 2), 'application/json');
-});
-
 document.getElementById('downloadCsv').addEventListener('click', () => {
   if (!latestLocators.length) { showToast('No locators to download', 'error'); return; }
   const keys = ['label','tag_name','id','name','class_name','css_selector','xpath'];
@@ -161,37 +218,33 @@ document.getElementById('downloadCsv').addEventListener('click', () => {
   downloadFile('locators.csv', rows.join('\n'), 'text/csv');
 });
 
-/* ---------- Render Table ---------- */
 function renderTable(list) {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
   list.forEach((loc, idx) => {
     const tr = document.createElement('tr');
-    tr.className = 'hover:bg-slate-50 cursor-pointer';
+    tr.className = 'hover:bg-indigo-900/60 cursor-pointer transition duration-75';
     tr.dataset.index = idx;
-
     tr.addEventListener('click', (e) => {
       if (e.target.dataset && e.target.dataset.skipRowCopy === 'true') return;
       navigator.clipboard.writeText(JSON.stringify(loc, null, 2)).then(()=> showToast('Copied element JSON'));
     });
-
     function makeCell(text, title) {
       const td = document.createElement('td');
       td.className = 'py-3 px-2 align-top';
-      if (!text) { td.innerHTML = '<span class="text-xs text-gray-400 italic">-</span>'; return td; }
+      if (!text) { td.innerHTML = '<span class="text-xs text-gray-600 italic">-</span>'; return td; }
       const span = document.createElement('span');
       span.className = 'truncate-250 inline-block';
       span.textContent = text;
       if (title) span.title = title;
       span.addEventListener('click', ev => {
         ev.stopPropagation();
-        navigator.clipboard.writeText(text).then(()=> showToast(`Copied: ${text.length>60? text.slice(0,60)+'...': text}`));
+        navigator.clipboard.writeText(text).then(()=> showToast(`Copied: ${text.length>60? text.slice(0,60)+"...": text}`));
       });
       span.dataset.skipRowCopy = 'true';
       td.appendChild(span);
       return td;
     }
-
     tr.appendChild(makeCell(loc.label||'Unnamed', loc.label||''));
     tr.appendChild(makeCell(loc.tag_name||'', loc.tag_name||''));
     tr.appendChild(makeCell(loc.id||'', loc.id||''));
@@ -199,7 +252,6 @@ function renderTable(list) {
     tr.appendChild(makeCell(loc.class_name||'', loc.class_name||''));
     tr.appendChild(makeCell(loc.css_selector||'', loc.css_selector||''));
     tr.appendChild(makeCell(loc.xpath||'', loc.xpath||''));
-
     tr.addEventListener('mouseenter', () => {
       const mapEl = previewElementMap.get(idx);
       if (mapEl) mapEl.classList.add('preview-highlight');
@@ -208,21 +260,17 @@ function renderTable(list) {
       const mapEl = previewElementMap.get(idx);
       if (mapEl) mapEl.classList.remove('preview-highlight');
     });
-
     tbody.appendChild(tr);
   });
 }
 
-/* ---------- Render Preview ---------- */
 function renderPreview(html, locators) {
   const preview = document.getElementById('preview');
   preview.innerHTML = '';
   previewElementMap.clear();
-
   const container = document.createElement('div');
   container.innerHTML = html;
   container.className = 'preview-root space-y-2';
-
   locators.forEach((loc, i) => {
     let el = null;
     try { if (loc.id) el = container.querySelector(`#${CSS.escape(loc.id)}`); } catch{}
@@ -237,17 +285,16 @@ function renderPreview(html, locators) {
       } catch{}
     }
     if (!el && loc.tag_name) el = container.querySelector(loc.tag_name);
-
     if (el) {
       el.dataset.locatorIndex = i;
       el.addEventListener('mouseenter', () => {
         const row = document.querySelector(`#tableBody tr[data-index="${i}"]`);
-        if (row) row.classList.add('bg-indigo-50');
+        if (row) row.classList.add('bg-purple-950/50');
         el.classList.add('preview-highlight');
       });
       el.addEventListener('mouseleave', () => {
         const row = document.querySelector(`#tableBody tr[data-index="${i}"]`);
-        if (row) row.classList.remove('bg-indigo-50');
+        if (row) row.classList.remove('bg-purple-950/50');
         el.classList.remove('preview-highlight');
       });
       el.addEventListener('click', ev => {
@@ -257,11 +304,11 @@ function renderPreview(html, locators) {
       previewElementMap.set(i, el);
     }
   });
-
   preview.appendChild(container);
 }
-
-if (!CSS.escape) { CSS.escape = function(v){return String(v).replace(/([^\x20-\x7E]|["'\\#;:<>~\[\]\(\)])/g,'\\$&'); }; }
-</script>
+if (!CSS.escape) {
+  CSS.escape = function(v){return String(v).replace(/([^\x20-\x7E]|["'\\#;:<>~\[\]\(\)])/g,'\\$&'); };
+}
+  </script>
 </body>
 </html>
